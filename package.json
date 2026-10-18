@@ -1,0 +1,13 @@
+{
+  "name": "bridge-rehearsal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "원문 암기와 15분 녹화를 위한 발표 연습 앱",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check dist/app.js && node --check dist/core.js && node --check dist/speech.js && node --check dist/storage.js"
+  }
+}

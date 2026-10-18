@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#154e43">
+  <meta name="description" content="원문 그대로, 당신의 속도로. 15분 녹화와 원문 자막으로 준비하는 발표 연습실.">
+  <title>BRIDGE — 발표 연습실</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="BRIDGE 발표 연습실 홈"><span class="brand-mark">B</span><span>BRIDGE <small>REHEARSAL STUDIO</small></span></a>
+    <span class="local-tag"><i></i> 나의 기기에 저장</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">한 문장씩, 더 단단하게</p><h1>나의 발표 연습실<span>.</span></h1><p>원문 그대로, 당신의 속도로. 말하고, 돌아보고, 다시 연습하세요.</p></div>
+      <div class="intro-meta"><span>발표 목표 <b id="heroTarget">10분</b></span><span>최대 녹화 <b>15분</b></span></div>
+    </section>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div class="workspace">
+      <aside id="setup" class="panel setup">
+        <div class="section-heading"><span class="step">01</span><h2>연습 준비</h2><span class="badge">원문 유지</span></div>
+        <label for="title">발표 제목</label>
+        <input id="title" maxlength="100" value="BRIDGE-AI 스마트교육">
+        <div class="label-row"><label for="script">발표 원고</label><button id="sample" class="text-button">내 발표문 불러오기</button></div>
+        <textarea id="script" rows="9" placeholder="발표할 원고를 그대로 붙여넣으세요.&#10;&#10;글머리표와 구분선은 직접 정리해 주세요. 원문은 자동으로 수정하지 않습니다."></textarea>
+        <div class="script-meta"><span id="scriptCount">0자</span><span>자동 수정 없음</span></div>
+        <div class="two-col"><div><label for="target">목표 시간 (분)</label><input type="number" id="target" min="1" max="15" step="0.5" value="10"></div><div><label for="speechMode">음성 인식</label><select id="speechMode"><option value="native">브라우저 기본</option value="server">서버 연결</option><option value="off">녹화 전용</option></select></div></div>
+        <p id="modeHelp" class="help"></p>
+        <div id="serverOptions" hidden><label for="password">서버 이용 비밀번호</label><input id="password" type="password" autocomplete="off" placeholder="서버 APP_PASSWORD"><p class="help">API 키는 입력하지 않습니다. 서버 관리자가 설정한 이용 비밀번호만 입력하세요.</p></div>
+        <details><summary>발음 대응 설정</summary><p class="help">표시 원문은 그대로 유지합니다. 숫자와 약어의 발음만 한 줄에 하나씩 지정하세요. 예: 2.57=이점오칠</p><textarea id="aliases" rows="5" aria-label="발음 대응 목록"></textarea></details>
+        <label class="check"><input type="checkbox" id="consent"><span>음성 인식 사용 시 오디오가 브라우저 제공자 또는 설정된 OpenAI 서비스로 전송될 수 있음을 확인했습니다. 영상은 기기에 저장됩니다.</span></label>
+        <div class="setup-actions"><button id="preview" class="secondary">카메라 확인</button><button id="start" class="primary"><span class="record-dot"></span> 연습 시작</button></div>
+        <p class="help center">3초 준비 후 녹화 · 15분에 자동 종료</p>
+      </aside>
+      <section class="studio panel" aria-label="발표 촬영 및 시간 비교">
+        <div class="studio-toolbar"><span id="recordState" class="state"><i></i> 준비 중</span><div class="toolbar-right"><label class="inline-check"><input id="mirror" type="checkbox" checked> 거울 보기</label><button id="focus" class="text-button">집중 화면</button></div></div>
+        <div class="camera-stage" id="cameraStage">
+          <video id="camera" autoplay muted playsinline></video>
+          <div id="cameraEmpty" class="camera-empty"><div class="frame-icon">◎</div><h3>당신의 다음 발표를 기다립니다</h3><p>카메라를 켜고 편안하게 시선을 맞춰 보세요.</p><span>영상과 음성은 녹화 시작 후 기록됩니다</span></div>
+          <div class="on-camera-time"><span id="elapsed">00:00</span><small id="cameraTarget">목표 10:00</small></div>
+          <div id="countdown" class="countdown" hidden>3</div>
+          <div class="captions-wrap"><div class="caption-top"><span id="captionLabel">원문 자막</span><div><button id="fontDown" aria-label="자막 작게">A−</button><button id="fontUp" aria-label="자막 크게">A+</button></div></div><div id="captions" class="captions" tabindex="0">원고를 입력하면 이곳에 자막이 표시됩니다.</div></div>
+        </div>
+        <div class="session-controls"><span id="speechStatus" role="status">카메라와 마이크를 확인해 주세요.</span><div><button id="pause" class="secondary" disabled>일시정지</button><button id="stop" class="danger" disabled>종료·저장</button></div></div>
+        <div class="timing-panel">
+          <div class="stats"><div><span>권장 도달 시간</span><strong id="recommended">00:00</strong></div><div><span>예상 총 발표 시간</span><strong id="predicted">—</strong></div><div><span>녹화 가능 시간</span><strong id="remaining">15:00</strong></div></div>
+          <div class="chart-top"><h3>나의 발표 페이스</h3><span id="pace">발표 속도를 측정할 준비가 됐어요</span></div>
+          <div class="chart" role="img" id="chart" aria-label="목표와 예상 발표 시간 비교">
+            <div class="bar-labels"><span>목표</span><span>예상</span></div>
+            <div class="plot"><div class="track"><div id="targetBar" class="bar target"></div></div><div class="track"><div id="predictedBar" class="bar predicted"></div></div><div id="elapsedMarker" class="marker actual"><span>현재</span></div><div id="recommendedMarker" class="marker recommended"></div><div id="limitMarker" class="marker limit"></div><div class="axis"><span>0</span><span id="axisMiddle">7:30</span><span id="axisMax">15:00</span></div></div>
+          </div>
+          <div class="legend"><span><i class="key blue"></i>목표 시간</span><span><i class="key green"></i>예상 시간</span><span><i class="key orange"></i>목표 초과</span><span>┆ 권장 도달 · 녹화 한도 15분</span></div>
+        </div>
+        <details class="position-panel"><summary>원문 위치 선택 · 인식 결과 확인</summary><p class="help">추적이 어긋나면 문장을 선택하세요. 수동 이동은 정확하게 말한 것으로 계산하지 않습니다.</p><div id="positionList"></div><p id="heard" class="heard">아직 인식한 발화가 없습니다.</p></details>
+      </section>
+    </div>
+    <section class="library panel">
+      <div class="section-heading"><span class="step">02</span><h2>나의 연습 기록</h2><button id="refresh" class="text-button">새로고침</button></div>
+      <p class="help">이 기기·브라우저에 저장됩니다. 중요한 영상은 ‘영상 저장’으로 내보내세요. 브라우저 데이터를 삭제하면 기록도 사라질 수 있습니다.</p>
+      <div id="sessionList" class="session-list"><div class="empty-library"><span>↗</span><p>첫 번째 연습이 새로운 출발점이 됩니다.</p><small>녹화를 마치면 영상과 원문 대조 기록이 여기에 쌓여요.</small></div></div>
+    </section>
+    <footer><span>BRIDGE · 원문을 지키는 발표 연습</span><span>초록: 인식 일치 ✓ &nbsp; 주황: 검토 필요 ⋯ &nbsp; 인식 결과는 실제 발화와 다를 수 있습니다.</span></footer>
+  </main>
+  <dialog id="reviewDialog"><div class="review-heading"><h2 id="reviewTitle">연습 돌아보기</h2><button id="closeReview" class="secondary">닫기</button></div><video id="playback" controls playsinline></video><div id="reviewCaption" class="review-caption"></div><p id="reviewInfo" class="help"></p><div class="review-actions"><button id="download" class="primary">영상 저장</button><button id="share" class="secondary">파일 공유</button><button id="downloadReport" class="secondary">대조 기록 저장</button></div><p id="reviewStatus" role="status" class="help"></p><h3>검토할 발화</h3><p class="help">항목을 누르면 발화 직전부터 재생합니다. 차이는 인식 오류일 수도 있으므로 영상으로 확인해 주세요.</p><div id="reviewEvents"></div></dialog>
+  <noscript>이 앱은 JavaScript가 필요합니다.</noscript>
+</body>
+</html>
